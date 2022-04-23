@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/zghh/redactable-fabric/protos/common";
+option java_package = "org.hyperledger.fabric.protos.common";
+
+package common;
+
+import "common/common.proto";
+
+message RedactTransaction {
+    google.protobuf.Timestamp timestamp = 1;
+    repeated RedactableTransaction transactions = 2;
+    uint64 current_height = 3;
+    uint64 block_height = 4;
+}
+
+message RedactBlock {
+    google.protobuf.Timestamp timestamp = 1;
+    RedactableBlock block = 2;
+    repeated RedactableTransaction transactions = 3;
+    uint64 current_height = 4;
+    uint64 block_height = 5;
+}
+
+message RedactableTransaction {
+    Envelope old_tx = 1;
+    Envelope envelope = 2;
+    uint64 block_number = 3;
+    uint64 tx_number = 4;
+}
+
+message RedactableBlock {
+    Block block = 1;
+    Envelope rd_tx = 2;
+    uint64 tx_index = 3;
+}

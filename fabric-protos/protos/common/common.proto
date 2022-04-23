@@ -36,6 +36,9 @@ enum HeaderType {
     DELIVER_SEEK_INFO = 5;           // Used as the type for Envelope messages submitted to instruct the Deliver API to seek
     CHAINCODE_PACKAGE = 6;           // Used for packaging chaincode artifacts for install
     PEER_ADMIN_OPERATION = 8;        // Used for invoking an administrative operation on a peer
+    REDACT_TRANSACTION = 10;         // Used for redacting a transaction
+    REDACT_BLOCK = 11;               // Used for redacting a block
+    REDACT_MESSAGE_QUERY = 12;       // Used for querying redact message from orderer
 }
 
 // This enum enlists indexes of the block metadata array
@@ -134,6 +137,12 @@ message Envelope {
 
     // A signature by the creator specified in the Payload header
     bytes signature = 2;
+
+    // The hash of transaction (if envelope is a block transaction)
+    bytes hash = 3;
+
+    // The randomness of transaction for redacting (if envelope is a block transaction)
+    bytes randomness = 4;
 }
 
 // This is finalized block structure to be shared among the orderer and peer
@@ -153,6 +162,8 @@ message BlockHeader {
     uint64 number = 1; // The position in the blockchain
     bytes previous_hash = 2; // The hash of the previous block header
     bytes data_hash = 3; // The hash of the BlockData, by MerkleTree
+    bytes randomness = 4; // The randomness of the BlockData
+    bytes redactor = 5; // The creator of the Block
 }
 
 message BlockData {
