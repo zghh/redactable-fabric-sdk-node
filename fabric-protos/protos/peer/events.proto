@@ -11,6 +11,7 @@ option go_package = "github.com/hyperledger/fabric-protos-go/peer";
 package protos;
 
 import "common/common.proto";
+import "common/redact.proto";
 import "ledger/rwset/rwset.proto";
 import "peer/chaincode_event.proto";
 import "peer/transaction.proto";
@@ -77,5 +78,25 @@ service Deliver {
     // Payload data as a marshaled orderer.SeekInfo message,
     // then a stream of block and private data replies is received
     rpc DeliverWithPrivateData (stream common.Envelope) returns (stream DeliverResponse) {
+    }
+}
+
+// PushRequest
+message PushRequest {
+}
+
+// PushResponse
+message PushResponse {
+    oneof Type {
+        common.Status status = 1;
+        common.RedactBlock block = 2;
+        common.RedactTransaction transaction = 3;
+    }
+}
+
+service Push {
+    // Push first requires an Envelope,
+    // then a stream of redactable message replies is received
+    rpc Push (stream common.Envelope) returns (stream PushResponse) {
     }
 }

@@ -624,6 +624,79 @@ rule
             transactionEnvelope
         };
     }
+
+    /**
+     * Constructs an object containing all decoded values from the
+     * protobuf `common.RedactBlock` object
+     *
+     * @param {Object} redactBlockProto- an object that represents the protobuf common.RedactBlock
+     * @returns {RedactBlock} An object of the fully decoded protobuf common.RedactBlock
+     */
+    static decodeRedactBlock(redactBlockProto) {
+        logger.debug('decodeRedactBlock - start %j', redactBlockProto);
+
+        if (!redactBlockProto) {
+            throw new Error('RedactBlock input data is missing');
+        }
+
+        const data = {};
+        try {
+            data.timestamp = redactBlockProto.timestamp;
+            data.current_height = redactBlockProto.current_height;
+            data.block_height = redactBlockProto.block_height;
+            data.block = BlockDecoder.decodeBlock(redactBlockProto.block.block);
+            data.transaction = [];
+            if (redactBlockProto.transactions) {
+                for (const transactionProto of redactBlockProto.transactions) {
+                    const envelope = decodeBlockDataEnvelope(transactionProto.envelope);
+                    envelope.block_number = transactionProto.block_number;
+                    envelope.tx_number = transactionProto.tx_number;
+                    data.transaction.push(envelope);
+                }
+            }
+        } catch (error) {
+            logger.error('decode - ::' + (error.stack ? error.stack : error));
+            throw new Error('RedactBlock decode has failed with ' + error.toString());
+        }
+
+        return data;
+    }
+
+    /**
+     * Constructs an object containing all decoded values from the
+     * protobuf `common.RedactTransaction` object
+     *
+     * @param {Object} redactTransactionProto- an object that represents the protobuf common.RedactTransaction
+     * @returns {RedactTransaction} An object of the fully decoded protobuf common.RedactTransaction
+     */
+    static decodeRedactTransaction(redactTransactionProto) {
+        logger.debug('decodeTransactionBlock - start %j', redactTransactionProto);
+
+        if (!redactTransactionProto) {
+            throw new Error('RedactTransaction input data is missing');
+        }
+
+        const data = {};
+        try {
+            data.timestamp = redactTransactionProto.timestamp;
+            data.current_height = redactTransactionProto.current_height;
+            data.block_height = redactTransactionProto.block_height;
+            data.transaction = [];
+            if (redactTransactionProto.transactions) {
+                for (const transactionProto of redactTransactionProto.transactions) {
+                    const envelope = decodeBlockDataEnvelope(transactionProto.envelope);
+                    envelope.block_number = transactionProto.block_number;
+                    envelope.tx_number = transactionProto.tx_number;
+                    data.transaction.push(envelope);
+                }
+            }
+        } catch (error) {
+            logger.error('decode - ::' + (error.stack ? error.stack : error));
+            throw new Error('RedactTransaction decode has failed with ' + error.toString());
+        }
+
+        return data;
+    }
 }
 
 function decodeFilteredTransactions(filteredTransactionsProto) {
@@ -896,8 +969,8 @@ function decodeRedactBlock(dataBuf) {
             }
         }
     } catch (error) {
-        logger.error(' Unable to decodeRedactTransaction :: %s', error);
-        logger.error(' Unable to decodeRedactTransaction :: %s', error.stack);
+        logger.error(' Unable to decodeRedactBlock :: %s', error);
+        logger.error(' Unable to decodeRedactBlock :: %s', error.stack);
     }
 
     return data;

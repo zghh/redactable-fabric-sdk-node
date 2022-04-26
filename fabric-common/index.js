@@ -31,6 +31,9 @@ const Endpoint = require('./lib/Endpoint');
 const Eventer = require('./lib/Eventer');
 const EventListener = require('./lib/EventListener');
 const EventService = require('./lib/EventService');
+const RedactEventer = require('./lib/RedactEventer');
+const RedactEventListener = require('./lib/RedactEventListener');
+const RedactEventService = require('./lib/RedactEventService');
 const Hash = require('./lib/Hash');
 const IdentityContext = require('./lib/IdentityContext');
 const Proposal = require('./lib/Proposal');
@@ -40,37 +43,40 @@ const ServiceEndpoint = require('./lib/ServiceEndpoint');
 const ServiceHandler = require('./lib/ServiceHandler');
 
 module.exports = {
-	Client,
-	Config,
-	CryptoAlgorithms,
-	CryptoSuite,
-	HashPrimitives,
-	Identity,
-	Key,
-	KeyValueStore,
-	Signer,
-	SigningIdentity,
-	Utils,
-	User,
-	BaseClient,
-	BlockDecoder,
-	Channel,
-	Commit,
-	Committer,
-	Discoverer,
-	DiscoveryHandler,
-	DiscoveryService,
-	Endorsement,
-	Endorser,
-	Endpoint,
-	Eventer,
-	EventListener,
-	EventService,
-	Hash,
-	IdentityContext,
-	Proposal,
-	Query,
-	ServiceAction,
-	ServiceEndpoint,
-	ServiceHandler
+    Client,
+    Config,
+    CryptoAlgorithms,
+    CryptoSuite,
+    HashPrimitives,
+    Identity,
+    Key,
+    KeyValueStore,
+    Signer,
+    SigningIdentity,
+    Utils,
+    User,
+    BaseClient,
+    BlockDecoder,
+    Channel,
+    Commit,
+    Committer,
+    Discoverer,
+    DiscoveryHandler,
+    DiscoveryService,
+    Endorsement,
+    Endorser,
+    Endpoint,
+    Eventer,
+    EventListener,
+    EventService,
+    RedactEventer,
+    RedactEventListener,
+    RedactEventService,
+    Hash,
+    IdentityContext,
+    Proposal,
+    Query,
+    ServiceAction,
+    ServiceEndpoint,
+    ServiceHandler
 };
