@@ -517,7 +517,8 @@ rule
             block.header = {
                 number: blockProto.header.number,
                 previous_hash: blockProto.header.previous_hash,
-                data_hash: blockProto.header.data_hash
+                data_hash: blockProto.header.data_hash,
+                randomness: blockProto.header.randomness,
             };
             block.data = decodeBlockData(blockProto.data);
             block.metadata = decodeBlockMetaData(blockProto.metadata);
@@ -871,6 +872,8 @@ function decodeMetadataValueSignatures(signaturesProto) {
 function decodeBlockDataEnvelope(envelopeProto) {
     const envelope = {};
     envelope.signature = envelopeProto.signature;
+    envelope.hash = envelopeProto.hash;
+    envelope.randomness = envelopeProto.randomness;
 
     envelope.payload = {};
     const payloadProto = fabproto6.common.Payload.decode(envelopeProto.payload);
