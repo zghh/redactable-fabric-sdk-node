@@ -38,7 +38,8 @@ enum HeaderType {
     PEER_ADMIN_OPERATION = 8;        // Used for invoking an administrative operation on a peer
     REDACT_TRANSACTION = 10;         // Used for redacting a transaction
     REDACT_BLOCK = 11;               // Used for redacting a block
-    REDACT_MESSAGE_QUERY = 12;       // Used for querying redact message from orderer
+    REVOKE = 12;                     // Used for revoking the modify permission
+    REDACT_MESSAGE_QUERY = 13;       // Used for querying redact message from orderer
 }
 
 // This enum enlists indexes of the block metadata array
@@ -71,6 +72,7 @@ message MetadataSignature {
 message Header {
     bytes channel_header = 1;
     bytes signature_header = 2;
+    bytes redactor = 3;
 }
 
 // Header is a generic replay prevention and identity message to include in a signed payload

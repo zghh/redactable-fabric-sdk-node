@@ -78,3 +78,4 @@ class RedactEventListener {
 module.exports = RedactEventListener;
 RedactEventListener.BLOCK = 'block'; // for block type event listeners
 RedactEventListener.TX = 'tx'; // for transaction type event listeners
+RedactEventListener.REVOKE = 'revoke'; // for revoke type event listeners

@@ -91,6 +91,7 @@ message PushResponse {
         common.Status status = 1;
         common.RedactBlock block = 2;
         common.RedactTransaction transaction = 3;
+        common.RevokeTransaction revoke = 4;
     }
 }
 

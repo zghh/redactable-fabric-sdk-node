@@ -11169,6 +11169,9 @@ export namespace protos {
 
         /** PushResponse transaction */
         transaction?: (common.IRedactTransaction|null);
+
+        /** PushResponse revoke */
+        revoke?: (common.IRevokeTransaction|null);
     }
 
     /** Represents a PushResponse. */
@@ -11189,8 +11192,11 @@ export namespace protos {
         /** PushResponse transaction. */
         public transaction?: (common.IRedactTransaction|null);
 
+        /** PushResponse revoke. */
+        public revoke?: (common.IRevokeTransaction|null);
+
         /** PushResponse Type. */
-        public Type?: ("status"|"block"|"transaction");
+        public Type?: ("status"|"block"|"transaction"|"revoke");
 
         /**
          * Creates a new PushResponse instance using the specified properties.
@@ -13979,7 +13985,8 @@ export namespace common {
         PEER_ADMIN_OPERATION = 8,
         REDACT_TRANSACTION = 10,
         REDACT_BLOCK = 11,
-        REDACT_MESSAGE_QUERY = 12
+        REVOKE = 12,
+        REDACT_MESSAGE_QUERY = 13
     }
 
     /** BlockMetadataIndex enum. */
@@ -14281,6 +14288,9 @@ export namespace common {
 
         /** Header signature_header */
         signature_header?: (Uint8Array|null);
+
+        /** Header redactor */
+        redactor?: (Uint8Array|null);
     }
 
     /** Represents a Header. */
@@ -14297,6 +14307,9 @@ export namespace common {
 
         /** Header signature_header. */
         public signature_header: Uint8Array;
+
+        /** Header redactor. */
+        public redactor: Uint8Array;
 
         /**
          * Creates a new Header instance using the specified properties.
@@ -17574,6 +17587,114 @@ export namespace common {
 
         /**
          * Converts this RedactableBlock to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
+    /** Properties of a RevokeTransaction. */
+    interface IRevokeTransaction {
+
+        /** RevokeTransaction timestamp */
+        timestamp?: (google.protobuf.ITimestamp|null);
+
+        /** RevokeTransaction transaction */
+        transaction?: (common.IRedactableTransaction|null);
+
+        /** RevokeTransaction current_height */
+        current_height?: (number|Long|null);
+
+        /** RevokeTransaction block_height */
+        block_height?: (number|Long|null);
+    }
+
+    /** Represents a RevokeTransaction. */
+    class RevokeTransaction implements IRevokeTransaction {
+
+        /**
+         * Constructs a new RevokeTransaction.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: common.IRevokeTransaction);
+
+        /** RevokeTransaction timestamp. */
+        public timestamp?: (google.protobuf.ITimestamp|null);
+
+        /** RevokeTransaction transaction. */
+        public transaction?: (common.IRedactableTransaction|null);
+
+        /** RevokeTransaction current_height. */
+        public current_height: (number|Long);
+
+        /** RevokeTransaction block_height. */
+        public block_height: (number|Long);
+
+        /**
+         * Creates a new RevokeTransaction instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns RevokeTransaction instance
+         */
+        public static create(properties?: common.IRevokeTransaction): common.RevokeTransaction;
+
+        /**
+         * Encodes the specified RevokeTransaction message. Does not implicitly {@link common.RevokeTransaction.verify|verify} messages.
+         * @param message RevokeTransaction message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: common.IRevokeTransaction, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified RevokeTransaction message, length delimited. Does not implicitly {@link common.RevokeTransaction.verify|verify} messages.
+         * @param message RevokeTransaction message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: common.IRevokeTransaction, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a RevokeTransaction message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns RevokeTransaction
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): common.RevokeTransaction;
+
+        /**
+         * Decodes a RevokeTransaction message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns RevokeTransaction
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): common.RevokeTransaction;
+
+        /**
+         * Verifies a RevokeTransaction message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a RevokeTransaction message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns RevokeTransaction
+         */
+        public static fromObject(object: { [k: string]: any }): common.RevokeTransaction;
+
+        /**
+         * Creates a plain object from a RevokeTransaction message. Also converts values to other types if specified.
+         * @param message RevokeTransaction
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: common.RevokeTransaction, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this RevokeTransaction to JSON.
          * @returns JSON object
          */
         public toJSON(): { [k: string]: any };
@@ -23785,6 +23906,322 @@ export namespace etcdraft {
 
         /**
          * Converts this ClusterMetadata to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+}
+
+/** Namespace redactable. */
+export namespace redactable {
+
+    /** Properties of a PublicKey. */
+    interface IPublicKey {
+
+        /** PublicKey id */
+        id?: (Uint8Array|null);
+
+        /** PublicKey p */
+        p?: (Uint8Array|null);
+
+        /** PublicKey p_pub */
+        p_pub?: (Uint8Array|null);
+
+        /** PublicKey param */
+        param?: (Uint8Array|null);
+    }
+
+    /** Represents a PublicKey. */
+    class PublicKey implements IPublicKey {
+
+        /**
+         * Constructs a new PublicKey.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: redactable.IPublicKey);
+
+        /** PublicKey id. */
+        public id: Uint8Array;
+
+        /** PublicKey p. */
+        public p: Uint8Array;
+
+        /** PublicKey p_pub. */
+        public p_pub: Uint8Array;
+
+        /** PublicKey param. */
+        public param: Uint8Array;
+
+        /**
+         * Creates a new PublicKey instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns PublicKey instance
+         */
+        public static create(properties?: redactable.IPublicKey): redactable.PublicKey;
+
+        /**
+         * Encodes the specified PublicKey message. Does not implicitly {@link redactable.PublicKey.verify|verify} messages.
+         * @param message PublicKey message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: redactable.IPublicKey, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified PublicKey message, length delimited. Does not implicitly {@link redactable.PublicKey.verify|verify} messages.
+         * @param message PublicKey message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: redactable.IPublicKey, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a PublicKey message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns PublicKey
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): redactable.PublicKey;
+
+        /**
+         * Decodes a PublicKey message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns PublicKey
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): redactable.PublicKey;
+
+        /**
+         * Verifies a PublicKey message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a PublicKey message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns PublicKey
+         */
+        public static fromObject(object: { [k: string]: any }): redactable.PublicKey;
+
+        /**
+         * Creates a plain object from a PublicKey message. Also converts values to other types if specified.
+         * @param message PublicKey
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: redactable.PublicKey, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this PublicKey to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
+    /** Properties of a PrivateKey. */
+    interface IPrivateKey {
+
+        /** PrivateKey public_key */
+        public_key?: (redactable.IPublicKey|null);
+
+        /** PrivateKey x */
+        x?: (Uint8Array|null);
+    }
+
+    /** Represents a PrivateKey. */
+    class PrivateKey implements IPrivateKey {
+
+        /**
+         * Constructs a new PrivateKey.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: redactable.IPrivateKey);
+
+        /** PrivateKey public_key. */
+        public public_key?: (redactable.IPublicKey|null);
+
+        /** PrivateKey x. */
+        public x: Uint8Array;
+
+        /**
+         * Creates a new PrivateKey instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns PrivateKey instance
+         */
+        public static create(properties?: redactable.IPrivateKey): redactable.PrivateKey;
+
+        /**
+         * Encodes the specified PrivateKey message. Does not implicitly {@link redactable.PrivateKey.verify|verify} messages.
+         * @param message PrivateKey message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: redactable.IPrivateKey, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified PrivateKey message, length delimited. Does not implicitly {@link redactable.PrivateKey.verify|verify} messages.
+         * @param message PrivateKey message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: redactable.IPrivateKey, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a PrivateKey message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns PrivateKey
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): redactable.PrivateKey;
+
+        /**
+         * Decodes a PrivateKey message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns PrivateKey
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): redactable.PrivateKey;
+
+        /**
+         * Verifies a PrivateKey message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a PrivateKey message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns PrivateKey
+         */
+        public static fromObject(object: { [k: string]: any }): redactable.PrivateKey;
+
+        /**
+         * Creates a plain object from a PrivateKey message. Also converts values to other types if specified.
+         * @param message PrivateKey
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: redactable.PrivateKey, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this PrivateKey to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
+    /** Properties of a Randomness. */
+    interface IRandomness {
+
+        /** Randomness first */
+        first?: (Uint8Array|null);
+
+        /** Randomness second */
+        second?: (Uint8Array|null);
+
+        /** Randomness third */
+        third?: (Uint8Array|null);
+
+        /** Randomness fourth */
+        fourth?: (Uint8Array|null);
+    }
+
+    /** Represents a Randomness. */
+    class Randomness implements IRandomness {
+
+        /**
+         * Constructs a new Randomness.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: redactable.IRandomness);
+
+        /** Randomness first. */
+        public first: Uint8Array;
+
+        /** Randomness second. */
+        public second: Uint8Array;
+
+        /** Randomness third. */
+        public third: Uint8Array;
+
+        /** Randomness fourth. */
+        public fourth: Uint8Array;
+
+        /**
+         * Creates a new Randomness instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns Randomness instance
+         */
+        public static create(properties?: redactable.IRandomness): redactable.Randomness;
+
+        /**
+         * Encodes the specified Randomness message. Does not implicitly {@link redactable.Randomness.verify|verify} messages.
+         * @param message Randomness message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: redactable.IRandomness, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified Randomness message, length delimited. Does not implicitly {@link redactable.Randomness.verify|verify} messages.
+         * @param message Randomness message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: redactable.IRandomness, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a Randomness message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns Randomness
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): redactable.Randomness;
+
+        /**
+         * Decodes a Randomness message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns Randomness
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): redactable.Randomness;
+
+        /**
+         * Verifies a Randomness message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a Randomness message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns Randomness
+         */
+        public static fromObject(object: { [k: string]: any }): redactable.Randomness;
+
+        /**
+         * Creates a plain object from a Randomness message. Also converts values to other types if specified.
+         * @param message Randomness
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: redactable.Randomness, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this Randomness to JSON.
          * @returns JSON object
          */
         public toJSON(): { [k: string]: any };

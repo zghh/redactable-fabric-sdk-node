@@ -38,3 +38,4 @@ import "peer/query.proto";
 import "peer/resources.proto";
 import "peer/signed_cc_dep_spec.proto";
 import "peer/transaction.proto";
+import "redactable/models.proto";

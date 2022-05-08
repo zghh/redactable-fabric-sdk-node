@@ -698,6 +698,39 @@ rule
 
         return data;
     }
+
+    /**
+     * Constructs an object containing all decoded values from the
+     * protobuf `common.RevokeTransaction` object
+     *
+     * @param {Object} revokeTransactionProto- an object that represents the protobuf common.RevokeTransaction
+     * @returns {RevokeTransaction} An object of the fully decoded protobuf common.RevokeTransaction
+     */
+    static decodeRevokeTransaction(revokeTransactionProto) {
+        logger.debug('decodeTransactionBlock - start %j', revokeTransactionProto);
+
+        if (!revokeTransactionProto) {
+            throw new Error('RevokeTransaction input data is missing');
+        }
+
+        const data = {};
+        try {
+            data.timestamp = revokeTransactionProto.timestamp;
+            data.current_height = revokeTransactionProto.current_height;
+            data.block_height = revokeTransactionProto.block_height;
+            if (revokeTransactionProto.transaction) {
+                const envelope = decodeBlockDataEnvelope(revokeTransactionProto.transaction.envelope);
+                envelope.block_number = revokeTransactionProto.transaction.block_number;
+                envelope.tx_number = revokeTransactionProto.transaction.tx_number;
+                data.transaction = envelope;
+            }
+        } catch (error) {
+            logger.error('decode - ::' + (error.stack ? error.stack : error));
+            throw new Error('RevokeTransaction decode has failed with ' + error.toString());
+        }
+
+        return data;
+    }
 }
 
 function decodeFilteredTransactions(filteredTransactionsProto) {
@@ -895,6 +928,9 @@ function decodeBlockDataEnvelope(envelopeProto) {
         case 11:
             envelope.payload.data = decodeRedactBlock(payloadProto.data);
             break;
+        case 12:
+            envelope.payload.data = decodeRevokeTransaction(payloadProto.data);
+            break;
         default:
             logger.debug(' ***** found an unknown header type of %s', envelope.payload.header.channel_header.type);
             // return empty data on types we do not know so that
@@ -949,6 +985,28 @@ function decodeRedactTransaction(dataBuf) {
     } catch (error) {
         logger.error(' Unable to decodeRedactTransaction :: %s', error);
         logger.error(' Unable to decodeRedactTransaction :: %s', error.stack);
+    }
+
+    return data;
+}
+
+function decodeRevokeTransaction(dataBuf) {
+    const data = {};
+    try {
+        const revokeTransactionProto = fabproto6.common.RevokeTransaction.decode(dataBuf);
+        data.timestamp = revokeTransactionProto.timestamp;
+        data.current_height = revokeTransactionProto.current_height;
+        data.block_height = revokeTransactionProto.block_height;
+        if (revokeTransactionProto.transaction) {
+            const envelope = decodeBlockDataEnvelope(revokeTransactionProto.transaction.envelope);
+            envelope.block_number = revokeTransactionProto.transaction.block_number;
+            envelope.tx_number = revokeTransactionProto.transaction.tx_number;
+            data.transaction = envelope;
+
+        }
+    } catch (error) {
+        logger.error(' Unable to decodeRevokeTransaction :: %s', error);
+        logger.error(' Unable to decodeRevokeTransaction :: %s', error.stack);
     }
 
     return data;
@@ -1430,6 +1488,11 @@ function decodeHeader(headerProto) {
     const header = {};
     header.channel_header = decodeChannelHeader(headerProto.channel_header);
     header.signature_header = decodeSignatureHeader(headerProto.signature_header);
+    header.redactor = '';
+    if (headerProto.redactor) {
+        const redactorProto = fabproto6.redactable.PublicKey.decode(headerProto.redactor);
+        header.redactor = redactorProto.id.toString();
+    }
 
     return header;
 }

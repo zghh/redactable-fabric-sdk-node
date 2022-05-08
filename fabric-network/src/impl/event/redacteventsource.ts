@@ -26,6 +26,7 @@ export class RedactMessageEventSource {
   private readonly listeners = new Set<RedactMessageListener>();
   private blockEventListener?: RedactEventListener;
   private transactionEventListener?: RedactEventListener;
+  private revokeEventListener?: RedactEventListener;
   private readonly messageQueue: RedactMessageQueue;
   private readonly asyncNotifier: AsyncNotifier<RedactMessageEvent>;
   private state: State = "ready";
@@ -102,12 +103,15 @@ export class RedactMessageEventSource {
       this.eventService!.registerBlockListener(callback);
     this.transactionEventListener =
       this.eventService!.registerTransactionListener(callback);
+    this.revokeEventListener =
+      this.eventService!.registerRevokeListener(callback);
   }
 
   private unregisterListener() {
     try {
       this.blockEventListener?.unregisterEventListener();
       this.transactionEventListener?.unregisterEventListener();
+      this.revokeEventListener?.unregisterEventListener();
     } catch (error) {
       logger.warn("Failed to unregister listener", error);
     }

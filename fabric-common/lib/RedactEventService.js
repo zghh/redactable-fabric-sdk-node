@@ -12,6 +12,7 @@ const { common: { Status: { SUCCESS, NOT_FOUND } } } = fabproto6;
 
 const BLOCK = RedactEventListener.BLOCK; // for block type event listeners
 const TX = RedactEventListener.TX; // for transaction type event listeners
+const REVOKE = RedactEventListener.REVOKE; // for revoke type event listeners
 
 // some info to help with debug when there are multiple eventservices running
 let count = 1;
@@ -45,6 +46,7 @@ class RedactEventService extends ServiceAction {
         this._eventListenerRegistrations = new Map();
         this._haveRedactBlockListeners = false;
         this._haveRedactTransactionListeners = false;
+        this._haveRevokeTransactionListeners = false;
 
         // peer's event service
         this.targets = null;
@@ -288,6 +290,17 @@ class RedactEventService extends ServiceAction {
                         // report error to all callbacks and shutdown this EventService
                         this._close(error);
                     }
+                } else if (pushResponse.Type === 'revoke') {
+                    try {
+                        let revoke_transaction = BlockDecoder.decodeRevokeTransaction(pushResponse.revoke);
+                        logger.debug('on.data %s- incoming revoke transaction', me);
+                        this._processRevokeTransactionEvents(revoke_transaction);
+                    } catch (error) {
+                        logger.error('on.data %s- RedactEventService - ::%s', me, error.stack);
+                        logger.error('on.data %s- RedactEventService has detected an error %s', me, error);
+                        // report error to all callbacks and shutdown this EventService
+                        this._close(error);
+                    }
                 } else if (pushResponse.Type === 'status') {
                     if (pushResponse.status === SUCCESS) {
                         logger.debug('on.data %s- received type status of SUCCESS', me);
@@ -476,15 +489,19 @@ class RedactEventService extends ServiceAction {
 
         let foundBlock = false;
         let foundTx = false;
+        let foundRevoke = false;
         for (const event_reg of this._eventListenerRegistrations.values()) {
             if (event_reg.listenerType === BLOCK) {
                 foundBlock = true;
             } else if (event_reg.listenerType === TX) {
                 foundTx = true;
+            } else if (event_reg.listenerType === REVOKE) {
+                foundRevoke = true;
             }
         }
         this._haveRedactBlockListeners = foundBlock;
         this._haveRedactTransactionListeners = foundTx;
+        this._haveRevokeTransactionListeners = foundRevoke;
 
         logger.debug('%s - end', method);
         return this;
@@ -527,6 +544,26 @@ class RedactEventService extends ServiceAction {
         const eventListener = new RedactEventListener(this, TX, callback);
         this._eventListenerRegistrations.set(eventListener, eventListener);
         this._haveRedactTransactionListeners = true;
+
+        return eventListener;
+    }
+
+    /**
+     * Register a callback function to receive a notification when the transaction
+     * by the given id has been committed into a block. Using the special string
+     * 'all' will indicate that this listener will notify (call) the callback
+     * for every transaction written to the ledger.
+     *
+     * @param {EventCallback} callback
+     * @returns {RedactEventListener} The RedactEventListener instance to be used to
+     *  remove this registration using {@link EventService#unregisterEvent})
+     */
+    registerRevokeListener(callback = checkParameter('callback')) {
+        const method = `registerRevokeListener[${this.name}] - #${this.myNumber}`;
+
+        const eventListener = new RedactEventListener(this, REVOKE, callback);
+        this._eventListenerRegistrations.set(eventListener, eventListener);
+        this._haveRevokeTransactionListeners = true;
 
         return eventListener;
     }
@@ -598,6 +635,40 @@ class RedactEventService extends ServiceAction {
             }
         }
     }
+
+    /*
+     * private internal method for processing revoke transaction operation
+     * @param {Object} revoke transaction protobuf object
+     */
+    _processRevokeTransactionEvents(revoke_transaction) {
+        const method = `_processRevokeTransactionEvents[${this.name}] - #${this.myNumber}`;
+        logger.debug('%s - start', method);
+
+        if (!this._haveRevokeTransactionListeners) {
+            logger.debug('%s - no revoke transaction listeners', method);
+            return;
+        }
+
+        for (const txReg of this._eventListenerRegistrations.values()) {
+            if (txReg.listenerType === REVOKE) {
+                logger.debug('%s - calling revoke transaction listener callback', method);
+                const event = new EventInfo(this);
+                event.revokeTransaction = revoke_transaction;
+
+                try {
+                    txReg.onEvent(null, event);
+                } catch (error) {
+                    logger.error('%s - %s', method, error);
+                }
+
+                // check to see if we should automatically unregister
+                if (txReg.unregister) {
+                    logger.debug('%s - automatically unregister revoke transaction listener for %s', method, txReg);
+                    this.unregisterEventListener(txReg, true);
+                }
+            }
+        }
+    }
 }
 
 module.exports = RedactEventService;
@@ -607,6 +678,7 @@ module.exports = RedactEventService;
  * @property {EventService} eventService - This EventService.
  * @property {object} [redactBlock] - The redact block received.
  * @property {object} [redactTransaction] - The redact transaction received.
+ * @property {object} [revokeTransaction] - The revoke transaction received.
  */
 
 class EventInfo {
@@ -617,5 +689,6 @@ class EventInfo {
         this.eventService = eventService;
         this.redactBlock;
         this.redactTransaction;
+        this.revokeTransaction;
     }
 }

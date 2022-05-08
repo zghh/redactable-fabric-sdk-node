@@ -338,6 +338,7 @@ export interface RedactEventInfo {
   eventService: RedactEventService;
   redactBlock?: fabproto6.common.IRedactBlock;
   redactTransaction?: fabproto6.common.IRedactTransaction;
+  revokeTransaction?: fabproto6.common.IRevokeTransaction;
 }
 
 export interface EventRegistrationOptions {
@@ -405,6 +406,9 @@ export class RedactEventService extends ServiceAction {
     callback: RedactEventCallback
   ): RedactEventListener;
   public registerTransactionListener(
+    callback: RedactEventCallback
+  ): RedactEventListener;
+  public registerRevokeListener(
     callback: RedactEventCallback
   ): RedactEventListener;
   public setTargets(targets: RedactEventer[]): void;

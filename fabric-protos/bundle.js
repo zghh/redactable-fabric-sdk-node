@@ -25906,6 +25906,7 @@
                     case 10:
                     case 11:
                     case 12:
+                    case 13:
                         break;
                     }
                 if (message.tx_validation_code != null && message.hasOwnProperty("tx_validation_code"))
@@ -26008,9 +26009,13 @@
                 case 11:
                     message.type = 11;
                     break;
-                case "REDACT_MESSAGE_QUERY":
+                case "REVOKE":
                 case 12:
                     message.type = 12;
+                    break;
+                case "REDACT_MESSAGE_QUERY":
+                case 13:
+                    message.type = 13;
                     break;
                 }
                 switch (object.tx_validation_code) {
@@ -27500,6 +27505,7 @@
              * @property {common.Status|null} [status] PushResponse status
              * @property {common.IRedactBlock|null} [block] PushResponse block
              * @property {common.IRedactTransaction|null} [transaction] PushResponse transaction
+             * @property {common.IRevokeTransaction|null} [revoke] PushResponse revoke
              */
     
             /**
@@ -27541,17 +27547,25 @@
              */
             PushResponse.prototype.transaction = null;
     
+            /**
+             * PushResponse revoke.
+             * @member {common.IRevokeTransaction|null|undefined} revoke
+             * @memberof protos.PushResponse
+             * @instance
+             */
+            PushResponse.prototype.revoke = null;
+    
             // OneOf field names bound to virtual getters and setters
             var $oneOfFields;
     
             /**
              * PushResponse Type.
-             * @member {"status"|"block"|"transaction"|undefined} Type
+             * @member {"status"|"block"|"transaction"|"revoke"|undefined} Type
              * @memberof protos.PushResponse
              * @instance
              */
             Object.defineProperty(PushResponse.prototype, "Type", {
-                get: $util.oneOfGetter($oneOfFields = ["status", "block", "transaction"]),
+                get: $util.oneOfGetter($oneOfFields = ["status", "block", "transaction", "revoke"]),
                 set: $util.oneOfSetter($oneOfFields)
             });
     
@@ -27585,6 +27599,8 @@
                     $root.common.RedactBlock.encode(message.block, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
                 if (message.transaction != null && Object.hasOwnProperty.call(message, "transaction"))
                     $root.common.RedactTransaction.encode(message.transaction, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
+                if (message.revoke != null && Object.hasOwnProperty.call(message, "revoke"))
+                    $root.common.RevokeTransaction.encode(message.revoke, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
                 return writer;
             };
     
@@ -27627,6 +27643,9 @@
                         break;
                     case 3:
                         message.transaction = $root.common.RedactTransaction.decode(reader, reader.uint32());
+                        break;
+                    case 4:
+                        message.revoke = $root.common.RevokeTransaction.decode(reader, reader.uint32());
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -27701,6 +27720,16 @@
                             return "transaction." + error;
                     }
                 }
+                if (message.revoke != null && message.hasOwnProperty("revoke")) {
+                    if (properties.Type === 1)
+                        return "Type: multiple values";
+                    properties.Type = 1;
+                    {
+                        var error = $root.common.RevokeTransaction.verify(message.revoke);
+                        if (error)
+                            return "revoke." + error;
+                    }
+                }
                 return null;
             };
     
@@ -27764,6 +27793,11 @@
                         throw TypeError(".protos.PushResponse.transaction: object expected");
                     message.transaction = $root.common.RedactTransaction.fromObject(object.transaction);
                 }
+                if (object.revoke != null) {
+                    if (typeof object.revoke !== "object")
+                        throw TypeError(".protos.PushResponse.revoke: object expected");
+                    message.revoke = $root.common.RevokeTransaction.fromObject(object.revoke);
+                }
                 return message;
             };
     
@@ -27794,6 +27828,11 @@
                     object.transaction = $root.common.RedactTransaction.toObject(message.transaction, options);
                     if (options.oneofs)
                         object.Type = "transaction";
+                }
+                if (message.revoke != null && message.hasOwnProperty("revoke")) {
+                    object.revoke = $root.common.RevokeTransaction.toObject(message.revoke, options);
+                    if (options.oneofs)
+                        object.Type = "revoke";
                 }
                 return object;
             };
@@ -34070,7 +34109,8 @@
          * @property {number} PEER_ADMIN_OPERATION=8 PEER_ADMIN_OPERATION value
          * @property {number} REDACT_TRANSACTION=10 REDACT_TRANSACTION value
          * @property {number} REDACT_BLOCK=11 REDACT_BLOCK value
-         * @property {number} REDACT_MESSAGE_QUERY=12 REDACT_MESSAGE_QUERY value
+         * @property {number} REVOKE=12 REVOKE value
+         * @property {number} REDACT_MESSAGE_QUERY=13 REDACT_MESSAGE_QUERY value
          */
         common.HeaderType = (function() {
             var valuesById = {}, values = Object.create(valuesById);
@@ -34084,7 +34124,8 @@
             values[valuesById[8] = "PEER_ADMIN_OPERATION"] = 8;
             values[valuesById[10] = "REDACT_TRANSACTION"] = 10;
             values[valuesById[11] = "REDACT_BLOCK"] = 11;
-            values[valuesById[12] = "REDACT_MESSAGE_QUERY"] = 12;
+            values[valuesById[12] = "REVOKE"] = 12;
+            values[valuesById[13] = "REDACT_MESSAGE_QUERY"] = 13;
             return values;
         })();
     
@@ -34785,6 +34826,7 @@
              * @interface IHeader
              * @property {Uint8Array|null} [channel_header] Header channel_header
              * @property {Uint8Array|null} [signature_header] Header signature_header
+             * @property {Uint8Array|null} [redactor] Header redactor
              */
     
             /**
@@ -34819,6 +34861,14 @@
             Header.prototype.signature_header = $util.newBuffer([]);
     
             /**
+             * Header redactor.
+             * @member {Uint8Array} redactor
+             * @memberof common.Header
+             * @instance
+             */
+            Header.prototype.redactor = $util.newBuffer([]);
+    
+            /**
              * Creates a new Header instance using the specified properties.
              * @function create
              * @memberof common.Header
@@ -34846,6 +34896,8 @@
                     writer.uint32(/* id 1, wireType 2 =*/10).bytes(message.channel_header);
                 if (message.signature_header != null && Object.hasOwnProperty.call(message, "signature_header"))
                     writer.uint32(/* id 2, wireType 2 =*/18).bytes(message.signature_header);
+                if (message.redactor != null && Object.hasOwnProperty.call(message, "redactor"))
+                    writer.uint32(/* id 3, wireType 2 =*/26).bytes(message.redactor);
                 return writer;
             };
     
@@ -34885,6 +34937,9 @@
                         break;
                     case 2:
                         message.signature_header = reader.bytes();
+                        break;
+                    case 3:
+                        message.redactor = reader.bytes();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -34927,6 +34982,9 @@
                 if (message.signature_header != null && message.hasOwnProperty("signature_header"))
                     if (!(message.signature_header && typeof message.signature_header.length === "number" || $util.isString(message.signature_header)))
                         return "signature_header: buffer expected";
+                if (message.redactor != null && message.hasOwnProperty("redactor"))
+                    if (!(message.redactor && typeof message.redactor.length === "number" || $util.isString(message.redactor)))
+                        return "redactor: buffer expected";
                 return null;
             };
     
@@ -34952,6 +35010,11 @@
                         $util.base64.decode(object.signature_header, message.signature_header = $util.newBuffer($util.base64.length(object.signature_header)), 0);
                     else if (object.signature_header.length)
                         message.signature_header = object.signature_header;
+                if (object.redactor != null)
+                    if (typeof object.redactor === "string")
+                        $util.base64.decode(object.redactor, message.redactor = $util.newBuffer($util.base64.length(object.redactor)), 0);
+                    else if (object.redactor.length)
+                        message.redactor = object.redactor;
                 return message;
             };
     
@@ -34983,11 +35046,20 @@
                         if (options.bytes !== Array)
                             object.signature_header = $util.newBuffer(object.signature_header);
                     }
+                    if (options.bytes === String)
+                        object.redactor = "";
+                    else {
+                        object.redactor = [];
+                        if (options.bytes !== Array)
+                            object.redactor = $util.newBuffer(object.redactor);
+                    }
                 }
                 if (message.channel_header != null && message.hasOwnProperty("channel_header"))
                     object.channel_header = options.bytes === String ? $util.base64.encode(message.channel_header, 0, message.channel_header.length) : options.bytes === Array ? Array.prototype.slice.call(message.channel_header) : message.channel_header;
                 if (message.signature_header != null && message.hasOwnProperty("signature_header"))
                     object.signature_header = options.bytes === String ? $util.base64.encode(message.signature_header, 0, message.signature_header.length) : options.bytes === Array ? Array.prototype.slice.call(message.signature_header) : message.signature_header;
+                if (message.redactor != null && message.hasOwnProperty("redactor"))
+                    object.redactor = options.bytes === String ? $util.base64.encode(message.redactor, 0, message.redactor.length) : options.bytes === Array ? Array.prototype.slice.call(message.redactor) : message.redactor;
                 return object;
             };
     
@@ -43081,6 +43153,298 @@
             };
     
             return RedactableBlock;
+        })();
+    
+        common.RevokeTransaction = (function() {
+    
+            /**
+             * Properties of a RevokeTransaction.
+             * @memberof common
+             * @interface IRevokeTransaction
+             * @property {google.protobuf.ITimestamp|null} [timestamp] RevokeTransaction timestamp
+             * @property {common.IRedactableTransaction|null} [transaction] RevokeTransaction transaction
+             * @property {number|Long|null} [current_height] RevokeTransaction current_height
+             * @property {number|Long|null} [block_height] RevokeTransaction block_height
+             */
+    
+            /**
+             * Constructs a new RevokeTransaction.
+             * @memberof common
+             * @classdesc Represents a RevokeTransaction.
+             * @implements IRevokeTransaction
+             * @constructor
+             * @param {common.IRevokeTransaction=} [properties] Properties to set
+             */
+            function RevokeTransaction(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            /**
+             * RevokeTransaction timestamp.
+             * @member {google.protobuf.ITimestamp|null|undefined} timestamp
+             * @memberof common.RevokeTransaction
+             * @instance
+             */
+            RevokeTransaction.prototype.timestamp = null;
+    
+            /**
+             * RevokeTransaction transaction.
+             * @member {common.IRedactableTransaction|null|undefined} transaction
+             * @memberof common.RevokeTransaction
+             * @instance
+             */
+            RevokeTransaction.prototype.transaction = null;
+    
+            /**
+             * RevokeTransaction current_height.
+             * @member {number|Long} current_height
+             * @memberof common.RevokeTransaction
+             * @instance
+             */
+            RevokeTransaction.prototype.current_height = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+    
+            /**
+             * RevokeTransaction block_height.
+             * @member {number|Long} block_height
+             * @memberof common.RevokeTransaction
+             * @instance
+             */
+            RevokeTransaction.prototype.block_height = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+    
+            /**
+             * Creates a new RevokeTransaction instance using the specified properties.
+             * @function create
+             * @memberof common.RevokeTransaction
+             * @static
+             * @param {common.IRevokeTransaction=} [properties] Properties to set
+             * @returns {common.RevokeTransaction} RevokeTransaction instance
+             */
+            RevokeTransaction.create = function create(properties) {
+                return new RevokeTransaction(properties);
+            };
+    
+            /**
+             * Encodes the specified RevokeTransaction message. Does not implicitly {@link common.RevokeTransaction.verify|verify} messages.
+             * @function encode
+             * @memberof common.RevokeTransaction
+             * @static
+             * @param {common.IRevokeTransaction} message RevokeTransaction message or plain object to encode
+             * @param {$protobuf.Writer} [writer] Writer to encode to
+             * @returns {$protobuf.Writer} Writer
+             */
+            RevokeTransaction.encode = function encode(message, writer) {
+                if (!writer)
+                    writer = $Writer.create();
+                if (message.timestamp != null && Object.hasOwnProperty.call(message, "timestamp"))
+                    $root.google.protobuf.Timestamp.encode(message.timestamp, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                if (message.transaction != null && Object.hasOwnProperty.call(message, "transaction"))
+                    $root.common.RedactableTransaction.encode(message.transaction, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+                if (message.current_height != null && Object.hasOwnProperty.call(message, "current_height"))
+                    writer.uint32(/* id 3, wireType 0 =*/24).uint64(message.current_height);
+                if (message.block_height != null && Object.hasOwnProperty.call(message, "block_height"))
+                    writer.uint32(/* id 4, wireType 0 =*/32).uint64(message.block_height);
+                return writer;
+            };
+    
+            /**
+             * Encodes the specified RevokeTransaction message, length delimited. Does not implicitly {@link common.RevokeTransaction.verify|verify} messages.
+             * @function encodeDelimited
+             * @memberof common.RevokeTransaction
+             * @static
+             * @param {common.IRevokeTransaction} message RevokeTransaction message or plain object to encode
+             * @param {$protobuf.Writer} [writer] Writer to encode to
+             * @returns {$protobuf.Writer} Writer
+             */
+            RevokeTransaction.encodeDelimited = function encodeDelimited(message, writer) {
+                return this.encode(message, writer).ldelim();
+            };
+    
+            /**
+             * Decodes a RevokeTransaction message from the specified reader or buffer.
+             * @function decode
+             * @memberof common.RevokeTransaction
+             * @static
+             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+             * @param {number} [length] Message length if known beforehand
+             * @returns {common.RevokeTransaction} RevokeTransaction
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            RevokeTransaction.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.common.RevokeTransaction();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.timestamp = $root.google.protobuf.Timestamp.decode(reader, reader.uint32());
+                        break;
+                    case 2:
+                        message.transaction = $root.common.RedactableTransaction.decode(reader, reader.uint32());
+                        break;
+                    case 3:
+                        message.current_height = reader.uint64();
+                        break;
+                    case 4:
+                        message.block_height = reader.uint64();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            /**
+             * Decodes a RevokeTransaction message from the specified reader or buffer, length delimited.
+             * @function decodeDelimited
+             * @memberof common.RevokeTransaction
+             * @static
+             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+             * @returns {common.RevokeTransaction} RevokeTransaction
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            RevokeTransaction.decodeDelimited = function decodeDelimited(reader) {
+                if (!(reader instanceof $Reader))
+                    reader = new $Reader(reader);
+                return this.decode(reader, reader.uint32());
+            };
+    
+            /**
+             * Verifies a RevokeTransaction message.
+             * @function verify
+             * @memberof common.RevokeTransaction
+             * @static
+             * @param {Object.<string,*>} message Plain object to verify
+             * @returns {string|null} `null` if valid, otherwise the reason why it is not
+             */
+            RevokeTransaction.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.timestamp != null && message.hasOwnProperty("timestamp")) {
+                    var error = $root.google.protobuf.Timestamp.verify(message.timestamp);
+                    if (error)
+                        return "timestamp." + error;
+                }
+                if (message.transaction != null && message.hasOwnProperty("transaction")) {
+                    var error = $root.common.RedactableTransaction.verify(message.transaction);
+                    if (error)
+                        return "transaction." + error;
+                }
+                if (message.current_height != null && message.hasOwnProperty("current_height"))
+                    if (!$util.isInteger(message.current_height) && !(message.current_height && $util.isInteger(message.current_height.low) && $util.isInteger(message.current_height.high)))
+                        return "current_height: integer|Long expected";
+                if (message.block_height != null && message.hasOwnProperty("block_height"))
+                    if (!$util.isInteger(message.block_height) && !(message.block_height && $util.isInteger(message.block_height.low) && $util.isInteger(message.block_height.high)))
+                        return "block_height: integer|Long expected";
+                return null;
+            };
+    
+            /**
+             * Creates a RevokeTransaction message from a plain object. Also converts values to their respective internal types.
+             * @function fromObject
+             * @memberof common.RevokeTransaction
+             * @static
+             * @param {Object.<string,*>} object Plain object
+             * @returns {common.RevokeTransaction} RevokeTransaction
+             */
+            RevokeTransaction.fromObject = function fromObject(object) {
+                if (object instanceof $root.common.RevokeTransaction)
+                    return object;
+                var message = new $root.common.RevokeTransaction();
+                if (object.timestamp != null) {
+                    if (typeof object.timestamp !== "object")
+                        throw TypeError(".common.RevokeTransaction.timestamp: object expected");
+                    message.timestamp = $root.google.protobuf.Timestamp.fromObject(object.timestamp);
+                }
+                if (object.transaction != null) {
+                    if (typeof object.transaction !== "object")
+                        throw TypeError(".common.RevokeTransaction.transaction: object expected");
+                    message.transaction = $root.common.RedactableTransaction.fromObject(object.transaction);
+                }
+                if (object.current_height != null)
+                    if ($util.Long)
+                        (message.current_height = $util.Long.fromValue(object.current_height)).unsigned = true;
+                    else if (typeof object.current_height === "string")
+                        message.current_height = parseInt(object.current_height, 10);
+                    else if (typeof object.current_height === "number")
+                        message.current_height = object.current_height;
+                    else if (typeof object.current_height === "object")
+                        message.current_height = new $util.LongBits(object.current_height.low >>> 0, object.current_height.high >>> 0).toNumber(true);
+                if (object.block_height != null)
+                    if ($util.Long)
+                        (message.block_height = $util.Long.fromValue(object.block_height)).unsigned = true;
+                    else if (typeof object.block_height === "string")
+                        message.block_height = parseInt(object.block_height, 10);
+                    else if (typeof object.block_height === "number")
+                        message.block_height = object.block_height;
+                    else if (typeof object.block_height === "object")
+                        message.block_height = new $util.LongBits(object.block_height.low >>> 0, object.block_height.high >>> 0).toNumber(true);
+                return message;
+            };
+    
+            /**
+             * Creates a plain object from a RevokeTransaction message. Also converts values to other types if specified.
+             * @function toObject
+             * @memberof common.RevokeTransaction
+             * @static
+             * @param {common.RevokeTransaction} message RevokeTransaction
+             * @param {$protobuf.IConversionOptions} [options] Conversion options
+             * @returns {Object.<string,*>} Plain object
+             */
+            RevokeTransaction.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.timestamp = null;
+                    object.transaction = null;
+                    if ($util.Long) {
+                        var long = new $util.Long(0, 0, true);
+                        object.current_height = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    } else
+                        object.current_height = options.longs === String ? "0" : 0;
+                    if ($util.Long) {
+                        var long = new $util.Long(0, 0, true);
+                        object.block_height = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    } else
+                        object.block_height = options.longs === String ? "0" : 0;
+                }
+                if (message.timestamp != null && message.hasOwnProperty("timestamp"))
+                    object.timestamp = $root.google.protobuf.Timestamp.toObject(message.timestamp, options);
+                if (message.transaction != null && message.hasOwnProperty("transaction"))
+                    object.transaction = $root.common.RedactableTransaction.toObject(message.transaction, options);
+                if (message.current_height != null && message.hasOwnProperty("current_height"))
+                    if (typeof message.current_height === "number")
+                        object.current_height = options.longs === String ? String(message.current_height) : message.current_height;
+                    else
+                        object.current_height = options.longs === String ? $util.Long.prototype.toString.call(message.current_height) : options.longs === Number ? new $util.LongBits(message.current_height.low >>> 0, message.current_height.high >>> 0).toNumber(true) : message.current_height;
+                if (message.block_height != null && message.hasOwnProperty("block_height"))
+                    if (typeof message.block_height === "number")
+                        object.block_height = options.longs === String ? String(message.block_height) : message.block_height;
+                    else
+                        object.block_height = options.longs === String ? $util.Long.prototype.toString.call(message.block_height) : options.longs === Number ? new $util.LongBits(message.block_height.low >>> 0, message.block_height.high >>> 0).toNumber(true) : message.block_height;
+                return object;
+            };
+    
+            /**
+             * Converts this RevokeTransaction to JSON.
+             * @function toJSON
+             * @memberof common.RevokeTransaction
+             * @instance
+             * @returns {Object.<string,*>} JSON object
+             */
+            RevokeTransaction.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return RevokeTransaction;
         })();
     
         return common;
@@ -58548,6 +58912,822 @@
         })();
     
         return etcdraft;
+    })();
+    
+    $root.redactable = (function() {
+    
+        /**
+         * Namespace redactable.
+         * @exports redactable
+         * @namespace
+         */
+        var redactable = {};
+    
+        redactable.PublicKey = (function() {
+    
+            /**
+             * Properties of a PublicKey.
+             * @memberof redactable
+             * @interface IPublicKey
+             * @property {Uint8Array|null} [id] PublicKey id
+             * @property {Uint8Array|null} [p] PublicKey p
+             * @property {Uint8Array|null} [p_pub] PublicKey p_pub
+             * @property {Uint8Array|null} [param] PublicKey param
+             */
+    
+            /**
+             * Constructs a new PublicKey.
+             * @memberof redactable
+             * @classdesc Represents a PublicKey.
+             * @implements IPublicKey
+             * @constructor
+             * @param {redactable.IPublicKey=} [properties] Properties to set
+             */
+            function PublicKey(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            /**
+             * PublicKey id.
+             * @member {Uint8Array} id
+             * @memberof redactable.PublicKey
+             * @instance
+             */
+            PublicKey.prototype.id = $util.newBuffer([]);
+    
+            /**
+             * PublicKey p.
+             * @member {Uint8Array} p
+             * @memberof redactable.PublicKey
+             * @instance
+             */
+            PublicKey.prototype.p = $util.newBuffer([]);
+    
+            /**
+             * PublicKey p_pub.
+             * @member {Uint8Array} p_pub
+             * @memberof redactable.PublicKey
+             * @instance
+             */
+            PublicKey.prototype.p_pub = $util.newBuffer([]);
+    
+            /**
+             * PublicKey param.
+             * @member {Uint8Array} param
+             * @memberof redactable.PublicKey
+             * @instance
+             */
+            PublicKey.prototype.param = $util.newBuffer([]);
+    
+            /**
+             * Creates a new PublicKey instance using the specified properties.
+             * @function create
+             * @memberof redactable.PublicKey
+             * @static
+             * @param {redactable.IPublicKey=} [properties] Properties to set
+             * @returns {redactable.PublicKey} PublicKey instance
+             */
+            PublicKey.create = function create(properties) {
+                return new PublicKey(properties);
+            };
+    
+            /**
+             * Encodes the specified PublicKey message. Does not implicitly {@link redactable.PublicKey.verify|verify} messages.
+             * @function encode
+             * @memberof redactable.PublicKey
+             * @static
+             * @param {redactable.IPublicKey} message PublicKey message or plain object to encode
+             * @param {$protobuf.Writer} [writer] Writer to encode to
+             * @returns {$protobuf.Writer} Writer
+             */
+            PublicKey.encode = function encode(message, writer) {
+                if (!writer)
+                    writer = $Writer.create();
+                if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                    writer.uint32(/* id 1, wireType 2 =*/10).bytes(message.id);
+                if (message.p != null && Object.hasOwnProperty.call(message, "p"))
+                    writer.uint32(/* id 2, wireType 2 =*/18).bytes(message.p);
+                if (message.p_pub != null && Object.hasOwnProperty.call(message, "p_pub"))
+                    writer.uint32(/* id 3, wireType 2 =*/26).bytes(message.p_pub);
+                if (message.param != null && Object.hasOwnProperty.call(message, "param"))
+                    writer.uint32(/* id 4, wireType 2 =*/34).bytes(message.param);
+                return writer;
+            };
+    
+            /**
+             * Encodes the specified PublicKey message, length delimited. Does not implicitly {@link redactable.PublicKey.verify|verify} messages.
+             * @function encodeDelimited
+             * @memberof redactable.PublicKey
+             * @static
+             * @param {redactable.IPublicKey} message PublicKey message or plain object to encode
+             * @param {$protobuf.Writer} [writer] Writer to encode to
+             * @returns {$protobuf.Writer} Writer
+             */
+            PublicKey.encodeDelimited = function encodeDelimited(message, writer) {
+                return this.encode(message, writer).ldelim();
+            };
+    
+            /**
+             * Decodes a PublicKey message from the specified reader or buffer.
+             * @function decode
+             * @memberof redactable.PublicKey
+             * @static
+             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+             * @param {number} [length] Message length if known beforehand
+             * @returns {redactable.PublicKey} PublicKey
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            PublicKey.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.redactable.PublicKey();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.id = reader.bytes();
+                        break;
+                    case 2:
+                        message.p = reader.bytes();
+                        break;
+                    case 3:
+                        message.p_pub = reader.bytes();
+                        break;
+                    case 4:
+                        message.param = reader.bytes();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            /**
+             * Decodes a PublicKey message from the specified reader or buffer, length delimited.
+             * @function decodeDelimited
+             * @memberof redactable.PublicKey
+             * @static
+             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+             * @returns {redactable.PublicKey} PublicKey
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            PublicKey.decodeDelimited = function decodeDelimited(reader) {
+                if (!(reader instanceof $Reader))
+                    reader = new $Reader(reader);
+                return this.decode(reader, reader.uint32());
+            };
+    
+            /**
+             * Verifies a PublicKey message.
+             * @function verify
+             * @memberof redactable.PublicKey
+             * @static
+             * @param {Object.<string,*>} message Plain object to verify
+             * @returns {string|null} `null` if valid, otherwise the reason why it is not
+             */
+            PublicKey.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.id != null && message.hasOwnProperty("id"))
+                    if (!(message.id && typeof message.id.length === "number" || $util.isString(message.id)))
+                        return "id: buffer expected";
+                if (message.p != null && message.hasOwnProperty("p"))
+                    if (!(message.p && typeof message.p.length === "number" || $util.isString(message.p)))
+                        return "p: buffer expected";
+                if (message.p_pub != null && message.hasOwnProperty("p_pub"))
+                    if (!(message.p_pub && typeof message.p_pub.length === "number" || $util.isString(message.p_pub)))
+                        return "p_pub: buffer expected";
+                if (message.param != null && message.hasOwnProperty("param"))
+                    if (!(message.param && typeof message.param.length === "number" || $util.isString(message.param)))
+                        return "param: buffer expected";
+                return null;
+            };
+    
+            /**
+             * Creates a PublicKey message from a plain object. Also converts values to their respective internal types.
+             * @function fromObject
+             * @memberof redactable.PublicKey
+             * @static
+             * @param {Object.<string,*>} object Plain object
+             * @returns {redactable.PublicKey} PublicKey
+             */
+            PublicKey.fromObject = function fromObject(object) {
+                if (object instanceof $root.redactable.PublicKey)
+                    return object;
+                var message = new $root.redactable.PublicKey();
+                if (object.id != null)
+                    if (typeof object.id === "string")
+                        $util.base64.decode(object.id, message.id = $util.newBuffer($util.base64.length(object.id)), 0);
+                    else if (object.id.length)
+                        message.id = object.id;
+                if (object.p != null)
+                    if (typeof object.p === "string")
+                        $util.base64.decode(object.p, message.p = $util.newBuffer($util.base64.length(object.p)), 0);
+                    else if (object.p.length)
+                        message.p = object.p;
+                if (object.p_pub != null)
+                    if (typeof object.p_pub === "string")
+                        $util.base64.decode(object.p_pub, message.p_pub = $util.newBuffer($util.base64.length(object.p_pub)), 0);
+                    else if (object.p_pub.length)
+                        message.p_pub = object.p_pub;
+                if (object.param != null)
+                    if (typeof object.param === "string")
+                        $util.base64.decode(object.param, message.param = $util.newBuffer($util.base64.length(object.param)), 0);
+                    else if (object.param.length)
+                        message.param = object.param;
+                return message;
+            };
+    
+            /**
+             * Creates a plain object from a PublicKey message. Also converts values to other types if specified.
+             * @function toObject
+             * @memberof redactable.PublicKey
+             * @static
+             * @param {redactable.PublicKey} message PublicKey
+             * @param {$protobuf.IConversionOptions} [options] Conversion options
+             * @returns {Object.<string,*>} Plain object
+             */
+            PublicKey.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    if (options.bytes === String)
+                        object.id = "";
+                    else {
+                        object.id = [];
+                        if (options.bytes !== Array)
+                            object.id = $util.newBuffer(object.id);
+                    }
+                    if (options.bytes === String)
+                        object.p = "";
+                    else {
+                        object.p = [];
+                        if (options.bytes !== Array)
+                            object.p = $util.newBuffer(object.p);
+                    }
+                    if (options.bytes === String)
+                        object.p_pub = "";
+                    else {
+                        object.p_pub = [];
+                        if (options.bytes !== Array)
+                            object.p_pub = $util.newBuffer(object.p_pub);
+                    }
+                    if (options.bytes === String)
+                        object.param = "";
+                    else {
+                        object.param = [];
+                        if (options.bytes !== Array)
+                            object.param = $util.newBuffer(object.param);
+                    }
+                }
+                if (message.id != null && message.hasOwnProperty("id"))
+                    object.id = options.bytes === String ? $util.base64.encode(message.id, 0, message.id.length) : options.bytes === Array ? Array.prototype.slice.call(message.id) : message.id;
+                if (message.p != null && message.hasOwnProperty("p"))
+                    object.p = options.bytes === String ? $util.base64.encode(message.p, 0, message.p.length) : options.bytes === Array ? Array.prototype.slice.call(message.p) : message.p;
+                if (message.p_pub != null && message.hasOwnProperty("p_pub"))
+                    object.p_pub = options.bytes === String ? $util.base64.encode(message.p_pub, 0, message.p_pub.length) : options.bytes === Array ? Array.prototype.slice.call(message.p_pub) : message.p_pub;
+                if (message.param != null && message.hasOwnProperty("param"))
+                    object.param = options.bytes === String ? $util.base64.encode(message.param, 0, message.param.length) : options.bytes === Array ? Array.prototype.slice.call(message.param) : message.param;
+                return object;
+            };
+    
+            /**
+             * Converts this PublicKey to JSON.
+             * @function toJSON
+             * @memberof redactable.PublicKey
+             * @instance
+             * @returns {Object.<string,*>} JSON object
+             */
+            PublicKey.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return PublicKey;
+        })();
+    
+        redactable.PrivateKey = (function() {
+    
+            /**
+             * Properties of a PrivateKey.
+             * @memberof redactable
+             * @interface IPrivateKey
+             * @property {redactable.IPublicKey|null} [public_key] PrivateKey public_key
+             * @property {Uint8Array|null} [x] PrivateKey x
+             */
+    
+            /**
+             * Constructs a new PrivateKey.
+             * @memberof redactable
+             * @classdesc Represents a PrivateKey.
+             * @implements IPrivateKey
+             * @constructor
+             * @param {redactable.IPrivateKey=} [properties] Properties to set
+             */
+            function PrivateKey(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            /**
+             * PrivateKey public_key.
+             * @member {redactable.IPublicKey|null|undefined} public_key
+             * @memberof redactable.PrivateKey
+             * @instance
+             */
+            PrivateKey.prototype.public_key = null;
+    
+            /**
+             * PrivateKey x.
+             * @member {Uint8Array} x
+             * @memberof redactable.PrivateKey
+             * @instance
+             */
+            PrivateKey.prototype.x = $util.newBuffer([]);
+    
+            /**
+             * Creates a new PrivateKey instance using the specified properties.
+             * @function create
+             * @memberof redactable.PrivateKey
+             * @static
+             * @param {redactable.IPrivateKey=} [properties] Properties to set
+             * @returns {redactable.PrivateKey} PrivateKey instance
+             */
+            PrivateKey.create = function create(properties) {
+                return new PrivateKey(properties);
+            };
+    
+            /**
+             * Encodes the specified PrivateKey message. Does not implicitly {@link redactable.PrivateKey.verify|verify} messages.
+             * @function encode
+             * @memberof redactable.PrivateKey
+             * @static
+             * @param {redactable.IPrivateKey} message PrivateKey message or plain object to encode
+             * @param {$protobuf.Writer} [writer] Writer to encode to
+             * @returns {$protobuf.Writer} Writer
+             */
+            PrivateKey.encode = function encode(message, writer) {
+                if (!writer)
+                    writer = $Writer.create();
+                if (message.public_key != null && Object.hasOwnProperty.call(message, "public_key"))
+                    $root.redactable.PublicKey.encode(message.public_key, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                if (message.x != null && Object.hasOwnProperty.call(message, "x"))
+                    writer.uint32(/* id 2, wireType 2 =*/18).bytes(message.x);
+                return writer;
+            };
+    
+            /**
+             * Encodes the specified PrivateKey message, length delimited. Does not implicitly {@link redactable.PrivateKey.verify|verify} messages.
+             * @function encodeDelimited
+             * @memberof redactable.PrivateKey
+             * @static
+             * @param {redactable.IPrivateKey} message PrivateKey message or plain object to encode
+             * @param {$protobuf.Writer} [writer] Writer to encode to
+             * @returns {$protobuf.Writer} Writer
+             */
+            PrivateKey.encodeDelimited = function encodeDelimited(message, writer) {
+                return this.encode(message, writer).ldelim();
+            };
+    
+            /**
+             * Decodes a PrivateKey message from the specified reader or buffer.
+             * @function decode
+             * @memberof redactable.PrivateKey
+             * @static
+             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+             * @param {number} [length] Message length if known beforehand
+             * @returns {redactable.PrivateKey} PrivateKey
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            PrivateKey.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.redactable.PrivateKey();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.public_key = $root.redactable.PublicKey.decode(reader, reader.uint32());
+                        break;
+                    case 2:
+                        message.x = reader.bytes();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            /**
+             * Decodes a PrivateKey message from the specified reader or buffer, length delimited.
+             * @function decodeDelimited
+             * @memberof redactable.PrivateKey
+             * @static
+             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+             * @returns {redactable.PrivateKey} PrivateKey
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            PrivateKey.decodeDelimited = function decodeDelimited(reader) {
+                if (!(reader instanceof $Reader))
+                    reader = new $Reader(reader);
+                return this.decode(reader, reader.uint32());
+            };
+    
+            /**
+             * Verifies a PrivateKey message.
+             * @function verify
+             * @memberof redactable.PrivateKey
+             * @static
+             * @param {Object.<string,*>} message Plain object to verify
+             * @returns {string|null} `null` if valid, otherwise the reason why it is not
+             */
+            PrivateKey.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.public_key != null && message.hasOwnProperty("public_key")) {
+                    var error = $root.redactable.PublicKey.verify(message.public_key);
+                    if (error)
+                        return "public_key." + error;
+                }
+                if (message.x != null && message.hasOwnProperty("x"))
+                    if (!(message.x && typeof message.x.length === "number" || $util.isString(message.x)))
+                        return "x: buffer expected";
+                return null;
+            };
+    
+            /**
+             * Creates a PrivateKey message from a plain object. Also converts values to their respective internal types.
+             * @function fromObject
+             * @memberof redactable.PrivateKey
+             * @static
+             * @param {Object.<string,*>} object Plain object
+             * @returns {redactable.PrivateKey} PrivateKey
+             */
+            PrivateKey.fromObject = function fromObject(object) {
+                if (object instanceof $root.redactable.PrivateKey)
+                    return object;
+                var message = new $root.redactable.PrivateKey();
+                if (object.public_key != null) {
+                    if (typeof object.public_key !== "object")
+                        throw TypeError(".redactable.PrivateKey.public_key: object expected");
+                    message.public_key = $root.redactable.PublicKey.fromObject(object.public_key);
+                }
+                if (object.x != null)
+                    if (typeof object.x === "string")
+                        $util.base64.decode(object.x, message.x = $util.newBuffer($util.base64.length(object.x)), 0);
+                    else if (object.x.length)
+                        message.x = object.x;
+                return message;
+            };
+    
+            /**
+             * Creates a plain object from a PrivateKey message. Also converts values to other types if specified.
+             * @function toObject
+             * @memberof redactable.PrivateKey
+             * @static
+             * @param {redactable.PrivateKey} message PrivateKey
+             * @param {$protobuf.IConversionOptions} [options] Conversion options
+             * @returns {Object.<string,*>} Plain object
+             */
+            PrivateKey.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.public_key = null;
+                    if (options.bytes === String)
+                        object.x = "";
+                    else {
+                        object.x = [];
+                        if (options.bytes !== Array)
+                            object.x = $util.newBuffer(object.x);
+                    }
+                }
+                if (message.public_key != null && message.hasOwnProperty("public_key"))
+                    object.public_key = $root.redactable.PublicKey.toObject(message.public_key, options);
+                if (message.x != null && message.hasOwnProperty("x"))
+                    object.x = options.bytes === String ? $util.base64.encode(message.x, 0, message.x.length) : options.bytes === Array ? Array.prototype.slice.call(message.x) : message.x;
+                return object;
+            };
+    
+            /**
+             * Converts this PrivateKey to JSON.
+             * @function toJSON
+             * @memberof redactable.PrivateKey
+             * @instance
+             * @returns {Object.<string,*>} JSON object
+             */
+            PrivateKey.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return PrivateKey;
+        })();
+    
+        redactable.Randomness = (function() {
+    
+            /**
+             * Properties of a Randomness.
+             * @memberof redactable
+             * @interface IRandomness
+             * @property {Uint8Array|null} [first] Randomness first
+             * @property {Uint8Array|null} [second] Randomness second
+             * @property {Uint8Array|null} [third] Randomness third
+             * @property {Uint8Array|null} [fourth] Randomness fourth
+             */
+    
+            /**
+             * Constructs a new Randomness.
+             * @memberof redactable
+             * @classdesc Represents a Randomness.
+             * @implements IRandomness
+             * @constructor
+             * @param {redactable.IRandomness=} [properties] Properties to set
+             */
+            function Randomness(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            /**
+             * Randomness first.
+             * @member {Uint8Array} first
+             * @memberof redactable.Randomness
+             * @instance
+             */
+            Randomness.prototype.first = $util.newBuffer([]);
+    
+            /**
+             * Randomness second.
+             * @member {Uint8Array} second
+             * @memberof redactable.Randomness
+             * @instance
+             */
+            Randomness.prototype.second = $util.newBuffer([]);
+    
+            /**
+             * Randomness third.
+             * @member {Uint8Array} third
+             * @memberof redactable.Randomness
+             * @instance
+             */
+            Randomness.prototype.third = $util.newBuffer([]);
+    
+            /**
+             * Randomness fourth.
+             * @member {Uint8Array} fourth
+             * @memberof redactable.Randomness
+             * @instance
+             */
+            Randomness.prototype.fourth = $util.newBuffer([]);
+    
+            /**
+             * Creates a new Randomness instance using the specified properties.
+             * @function create
+             * @memberof redactable.Randomness
+             * @static
+             * @param {redactable.IRandomness=} [properties] Properties to set
+             * @returns {redactable.Randomness} Randomness instance
+             */
+            Randomness.create = function create(properties) {
+                return new Randomness(properties);
+            };
+    
+            /**
+             * Encodes the specified Randomness message. Does not implicitly {@link redactable.Randomness.verify|verify} messages.
+             * @function encode
+             * @memberof redactable.Randomness
+             * @static
+             * @param {redactable.IRandomness} message Randomness message or plain object to encode
+             * @param {$protobuf.Writer} [writer] Writer to encode to
+             * @returns {$protobuf.Writer} Writer
+             */
+            Randomness.encode = function encode(message, writer) {
+                if (!writer)
+                    writer = $Writer.create();
+                if (message.first != null && Object.hasOwnProperty.call(message, "first"))
+                    writer.uint32(/* id 1, wireType 2 =*/10).bytes(message.first);
+                if (message.second != null && Object.hasOwnProperty.call(message, "second"))
+                    writer.uint32(/* id 2, wireType 2 =*/18).bytes(message.second);
+                if (message.third != null && Object.hasOwnProperty.call(message, "third"))
+                    writer.uint32(/* id 3, wireType 2 =*/26).bytes(message.third);
+                if (message.fourth != null && Object.hasOwnProperty.call(message, "fourth"))
+                    writer.uint32(/* id 4, wireType 2 =*/34).bytes(message.fourth);
+                return writer;
+            };
+    
+            /**
+             * Encodes the specified Randomness message, length delimited. Does not implicitly {@link redactable.Randomness.verify|verify} messages.
+             * @function encodeDelimited
+             * @memberof redactable.Randomness
+             * @static
+             * @param {redactable.IRandomness} message Randomness message or plain object to encode
+             * @param {$protobuf.Writer} [writer] Writer to encode to
+             * @returns {$protobuf.Writer} Writer
+             */
+            Randomness.encodeDelimited = function encodeDelimited(message, writer) {
+                return this.encode(message, writer).ldelim();
+            };
+    
+            /**
+             * Decodes a Randomness message from the specified reader or buffer.
+             * @function decode
+             * @memberof redactable.Randomness
+             * @static
+             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+             * @param {number} [length] Message length if known beforehand
+             * @returns {redactable.Randomness} Randomness
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            Randomness.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.redactable.Randomness();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.first = reader.bytes();
+                        break;
+                    case 2:
+                        message.second = reader.bytes();
+                        break;
+                    case 3:
+                        message.third = reader.bytes();
+                        break;
+                    case 4:
+                        message.fourth = reader.bytes();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            /**
+             * Decodes a Randomness message from the specified reader or buffer, length delimited.
+             * @function decodeDelimited
+             * @memberof redactable.Randomness
+             * @static
+             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+             * @returns {redactable.Randomness} Randomness
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            Randomness.decodeDelimited = function decodeDelimited(reader) {
+                if (!(reader instanceof $Reader))
+                    reader = new $Reader(reader);
+                return this.decode(reader, reader.uint32());
+            };
+    
+            /**
+             * Verifies a Randomness message.
+             * @function verify
+             * @memberof redactable.Randomness
+             * @static
+             * @param {Object.<string,*>} message Plain object to verify
+             * @returns {string|null} `null` if valid, otherwise the reason why it is not
+             */
+            Randomness.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.first != null && message.hasOwnProperty("first"))
+                    if (!(message.first && typeof message.first.length === "number" || $util.isString(message.first)))
+                        return "first: buffer expected";
+                if (message.second != null && message.hasOwnProperty("second"))
+                    if (!(message.second && typeof message.second.length === "number" || $util.isString(message.second)))
+                        return "second: buffer expected";
+                if (message.third != null && message.hasOwnProperty("third"))
+                    if (!(message.third && typeof message.third.length === "number" || $util.isString(message.third)))
+                        return "third: buffer expected";
+                if (message.fourth != null && message.hasOwnProperty("fourth"))
+                    if (!(message.fourth && typeof message.fourth.length === "number" || $util.isString(message.fourth)))
+                        return "fourth: buffer expected";
+                return null;
+            };
+    
+            /**
+             * Creates a Randomness message from a plain object. Also converts values to their respective internal types.
+             * @function fromObject
+             * @memberof redactable.Randomness
+             * @static
+             * @param {Object.<string,*>} object Plain object
+             * @returns {redactable.Randomness} Randomness
+             */
+            Randomness.fromObject = function fromObject(object) {
+                if (object instanceof $root.redactable.Randomness)
+                    return object;
+                var message = new $root.redactable.Randomness();
+                if (object.first != null)
+                    if (typeof object.first === "string")
+                        $util.base64.decode(object.first, message.first = $util.newBuffer($util.base64.length(object.first)), 0);
+                    else if (object.first.length)
+                        message.first = object.first;
+                if (object.second != null)
+                    if (typeof object.second === "string")
+                        $util.base64.decode(object.second, message.second = $util.newBuffer($util.base64.length(object.second)), 0);
+                    else if (object.second.length)
+                        message.second = object.second;
+                if (object.third != null)
+                    if (typeof object.third === "string")
+                        $util.base64.decode(object.third, message.third = $util.newBuffer($util.base64.length(object.third)), 0);
+                    else if (object.third.length)
+                        message.third = object.third;
+                if (object.fourth != null)
+                    if (typeof object.fourth === "string")
+                        $util.base64.decode(object.fourth, message.fourth = $util.newBuffer($util.base64.length(object.fourth)), 0);
+                    else if (object.fourth.length)
+                        message.fourth = object.fourth;
+                return message;
+            };
+    
+            /**
+             * Creates a plain object from a Randomness message. Also converts values to other types if specified.
+             * @function toObject
+             * @memberof redactable.Randomness
+             * @static
+             * @param {redactable.Randomness} message Randomness
+             * @param {$protobuf.IConversionOptions} [options] Conversion options
+             * @returns {Object.<string,*>} Plain object
+             */
+            Randomness.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    if (options.bytes === String)
+                        object.first = "";
+                    else {
+                        object.first = [];
+                        if (options.bytes !== Array)
+                            object.first = $util.newBuffer(object.first);
+                    }
+                    if (options.bytes === String)
+                        object.second = "";
+                    else {
+                        object.second = [];
+                        if (options.bytes !== Array)
+                            object.second = $util.newBuffer(object.second);
+                    }
+                    if (options.bytes === String)
+                        object.third = "";
+                    else {
+                        object.third = [];
+                        if (options.bytes !== Array)
+                            object.third = $util.newBuffer(object.third);
+                    }
+                    if (options.bytes === String)
+                        object.fourth = "";
+                    else {
+                        object.fourth = [];
+                        if (options.bytes !== Array)
+                            object.fourth = $util.newBuffer(object.fourth);
+                    }
+                }
+                if (message.first != null && message.hasOwnProperty("first"))
+                    object.first = options.bytes === String ? $util.base64.encode(message.first, 0, message.first.length) : options.bytes === Array ? Array.prototype.slice.call(message.first) : message.first;
+                if (message.second != null && message.hasOwnProperty("second"))
+                    object.second = options.bytes === String ? $util.base64.encode(message.second, 0, message.second.length) : options.bytes === Array ? Array.prototype.slice.call(message.second) : message.second;
+                if (message.third != null && message.hasOwnProperty("third"))
+                    object.third = options.bytes === String ? $util.base64.encode(message.third, 0, message.third.length) : options.bytes === Array ? Array.prototype.slice.call(message.third) : message.third;
+                if (message.fourth != null && message.hasOwnProperty("fourth"))
+                    object.fourth = options.bytes === String ? $util.base64.encode(message.fourth, 0, message.fourth.length) : options.bytes === Array ? Array.prototype.slice.call(message.fourth) : message.fourth;
+                return object;
+            };
+    
+            /**
+             * Converts this Randomness to JSON.
+             * @function toJSON
+             * @memberof redactable.Randomness
+             * @instance
+             * @returns {Object.<string,*>} JSON object
+             */
+            Randomness.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return Randomness;
+        })();
+    
+        return redactable;
     })();
     
     $root.fabric = (function() {

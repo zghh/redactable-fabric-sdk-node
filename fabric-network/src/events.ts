@@ -40,6 +40,7 @@ export interface ContractEvent {
 export interface RedactMessageEvent {
   readonly redactBlockData?: fabproto6.common.IRedactBlock;
   readonly redactTransactionData?: fabproto6.common.IRedactTransaction;
+  readonly revokeTransactionData?: fabproto6.common.IRevokeTransaction;
 }
 
 export type BlockListener = (event: BlockEvent) => Promise<void>;
